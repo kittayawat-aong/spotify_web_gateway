@@ -4,7 +4,7 @@ import { env } from './config/env.ts';
 const app = buildApp();
 
 void app
-  .listen({ port: env.port, host: '127.0.0.1' })
+  .listen({ port: env.port, host: env.host })
   .then(() => {
     console.log(`http://127.0.0.1:${env.port}`);
   })

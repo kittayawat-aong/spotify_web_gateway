@@ -23,22 +23,40 @@ export async function exchangeAuthorizationCode(code: string): Promise<{
   status: number;
   body: unknown;
 }> {
+  const response = await requestToken({
+    grant_type: 'authorization_code',
+    code,
+    redirect_uri: env.spotify.redirectUri,
+  });
+
+  return { status: response.status, body: await response.json() };
+}
+
+export async function refreshAccessToken(refreshToken: string): Promise<{
+  status: number;
+  body: unknown;
+}> {
+  const response = await requestToken({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+  });
+
+  return { status: response.status, body: await response.json() };
+}
+
+async function requestToken(
+  body: Record<string, string>,
+): Promise<Response> {
   const credentials = Buffer.from(
     `${env.spotify.clientId}:${env.spotify.clientSecret}`,
   ).toString('base64');
 
-  const response = await fetch('https://accounts.spotify.com/api/token', {
+  return await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
       Authorization: `Basic ${credentials}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: env.spotify.redirectUri,
-    }),
+    body: new URLSearchParams(body),
   });
-
-  return { status: response.status, body: await response.json() };
 }
