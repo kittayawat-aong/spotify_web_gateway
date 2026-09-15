@@ -4,6 +4,7 @@ import {
   createAuthorizationUrl,
   exchangeAuthorizationCode,
 } from '../services/spotify-auth.service.ts';
+import { saveSpotifyToken } from '../services/spotify-token.service.ts';
 
 export function login(res: ServerResponse): void {
   res.writeHead(302, { Location: createAuthorizationUrl() });
@@ -19,5 +20,12 @@ export async function callback(res: ServerResponse, url: URL): Promise<void> {
   }
 
   const tokenResponse = await exchangeAuthorizationCode(code);
+  if (tokenResponse.status === 200) {
+    await saveSpotifyToken(tokenResponse.body);
+    res.writeHead(302, { Location: '/' });
+    res.end();
+    return;
+  }
+
   sendJson(res, tokenResponse.status, tokenResponse.body);
 }

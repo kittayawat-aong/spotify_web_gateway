@@ -4,6 +4,7 @@ import { env } from '../config/env.ts';
 const authorizationScopes = [
   'user-read-playback-state',
   'user-read-currently-playing',
+  'user-modify-playback-state',
 ];
 
 export function createAuthorizationUrl(): string {
