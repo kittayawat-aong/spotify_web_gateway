@@ -11,7 +11,8 @@ export function registerDocsRoutes(app: FastifyInstance): void {
 
   app.get<{ Params: { assetName: string } }>(
     '/docs/assets/:assetName',
-    async (request, reply) =>
-      serveSwaggerUiAsset(reply, request.params.assetName),
+    async (request, reply) => {
+      await serveSwaggerUiAsset(reply, request.params.assetName);
+    },
   );
 }

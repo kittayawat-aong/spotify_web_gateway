@@ -125,6 +125,6 @@ const page = `<!doctype html>
   </body>
 </html>`;
 
-export function renderUi(reply: FastifyReply): void {
-  reply.type('text/html; charset=utf-8').send(page);
+export function renderUi(reply: FastifyReply): FastifyReply {
+  return reply.type('text/html; charset=utf-8').send(page);
 }

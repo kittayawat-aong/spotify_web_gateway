@@ -60,11 +60,11 @@ export function buildApp(): FastifyInstance {
         request.routeOptions.url ?? url.pathname,
       ),
     });
-    reply.code(500).send({ message: 'Internal Server Error' });
+    return reply.code(500).send({ message: 'Internal Server Error' });
   });
 
   app.setNotFoundHandler((_request, reply) => {
-    reply.code(404).send({ message: 'Not Found' });
+    return reply.code(404).send({ message: 'Not Found' });
   });
 
   registerUiRoutes(app);

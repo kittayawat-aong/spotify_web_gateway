@@ -9,13 +9,25 @@ import {
 import { authStatus } from '../controllers/auth-status.controller.ts';
 
 export function registerPlaybackRoutes(app: FastifyInstance): void {
-  app.get('/api/auth/status', async (_request, reply) => authStatus(reply));
-  app.get('/api/playback', async (_request, reply) => playback(reply));
-  app.get('/api/devices', async (_request, reply) => devices(reply));
+  app.get('/api/auth/status', async (_request, reply) => {
+    await authStatus(reply);
+  });
+  app.get('/api/playback', async (_request, reply) => {
+    await playback(reply);
+  });
+  app.get('/api/devices', async (_request, reply) => {
+    await devices(reply);
+  });
   app.post<{ Querystring: { device_id?: string } }>(
     '/api/play',
-    async (request, reply) => startPlayback(reply, request.query.device_id),
+    async (request, reply) => {
+      await startPlayback(reply, request.query.device_id);
+    },
   );
-  app.post('/api/pause', async (_request, reply) => pausePlayback(reply));
-  app.post('/api/next', async (_request, reply) => nextTrack(reply));
+  app.post('/api/pause', async (_request, reply) => {
+    await pausePlayback(reply);
+  });
+  app.post('/api/next', async (_request, reply) => {
+    await nextTrack(reply);
+  });
 }

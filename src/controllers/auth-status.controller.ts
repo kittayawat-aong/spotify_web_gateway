@@ -7,10 +7,10 @@ import {
 export async function authStatus(reply: FastifyReply): Promise<void> {
   try {
     await getSpotifyAccessToken();
-    reply.send({ authorized: true });
+    await reply.send({ authorized: true });
   } catch (error) {
     if (error instanceof SpotifyTokenUnavailableError) {
-      reply.send({ authorized: false });
+      await reply.send({ authorized: false });
       return;
     }
 

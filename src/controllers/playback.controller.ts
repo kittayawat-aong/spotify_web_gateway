@@ -1,4 +1,5 @@
 import type { FastifyReply } from 'fastify';
+import { sendJson } from '../lib/http-response.ts';
 import {
   getDevices,
   getPlayback,
@@ -38,10 +39,10 @@ async function sendPlaybackResponse(
 ): Promise<void> {
   try {
     const response = await action();
-    reply.code(response.status).send(response.body);
+    await sendJson(reply, response.status, response.body);
   } catch (error) {
     if (error instanceof SpotifyTokenUnavailableError) {
-      reply.code(401).send({ message: error.message });
+      await sendJson(reply, 401, { message: error.message });
       return;
     }
 

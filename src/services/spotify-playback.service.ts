@@ -8,26 +8,26 @@ export interface SpotifyApiResponse {
 }
 
 export async function getPlayback(): Promise<SpotifyApiResponse> {
-  return spotifyRequest('/me/player', 'GET');
+  return await spotifyRequest('/me/player', 'GET');
 }
 
 export async function getDevices(): Promise<SpotifyApiResponse> {
-  return spotifyRequest('/me/player/devices', 'GET');
+  return await spotifyRequest('/me/player/devices', 'GET');
 }
 
 export async function play(deviceId?: string): Promise<SpotifyApiResponse> {
   const query = deviceId
     ? `?${new URLSearchParams({ device_id: deviceId }).toString()}`
     : '';
-  return spotifyRequest(`/me/player/play${query}`, 'PUT');
+  return await spotifyRequest(`/me/player/play${query}`, 'PUT');
 }
 
 export async function pause(): Promise<SpotifyApiResponse> {
-  return spotifyRequest('/me/player/pause', 'PUT');
+  return await spotifyRequest('/me/player/pause', 'PUT');
 }
 
 export async function next(): Promise<SpotifyApiResponse> {
-  return spotifyRequest('/me/player/next', 'POST');
+  return await spotifyRequest('/me/player/next', 'POST');
 }
 
 async function spotifyRequest(

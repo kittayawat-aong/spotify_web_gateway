@@ -6,6 +6,8 @@ export function registerAuthRoutes(app: FastifyInstance): void {
 
   app.get<{ Querystring: { code?: string } }>(
     '/auth/callback',
-    async (request, reply) => callback(reply, request.query.code),
+    async (request, reply) => {
+      await callback(reply, request.query.code);
+    },
   );
 }

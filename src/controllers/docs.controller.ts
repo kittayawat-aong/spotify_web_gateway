@@ -37,12 +37,12 @@ const swaggerUiHtml = `<!doctype html>
   </body>
 </html>`;
 
-export function renderSwaggerUi(reply: FastifyReply): void {
-  reply.type('text/html; charset=utf-8').send(swaggerUiHtml);
+export function renderSwaggerUi(reply: FastifyReply): FastifyReply {
+  return reply.type('text/html; charset=utf-8').send(swaggerUiHtml);
 }
 
-export function getOpenApiDocument(reply: FastifyReply): void {
-  reply.send(openApiDocument);
+export function getOpenApiDocument(reply: FastifyReply): FastifyReply {
+  return reply.send(openApiDocument);
 }
 
 export async function serveSwaggerUiAsset(
@@ -52,10 +52,10 @@ export async function serveSwaggerUiAsset(
   const contentType = swaggerUiAssets.get(assetName);
 
   if (!contentType) {
-    reply.code(404).send({ message: 'Not Found' });
+    await reply.code(404).send({ message: 'Not Found' });
     return;
   }
 
   const asset = await readFile(join(swaggerUiDirectory, assetName));
-  reply.type(contentType).send(asset);
+  await reply.type(contentType).send(asset);
 }
