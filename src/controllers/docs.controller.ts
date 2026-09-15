@@ -1,9 +1,8 @@
 import { readFile } from 'node:fs/promises';
-import type { ServerResponse } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { FastifyReply } from 'fastify';
 import { openApiDocument } from '../docs/openapi.ts';
-import { sendJson } from '../lib/http-response.ts';
 
 const swaggerUiDirectory = dirname(
   fileURLToPath(import.meta.resolve('swagger-ui-dist/package.json')),
@@ -38,27 +37,25 @@ const swaggerUiHtml = `<!doctype html>
   </body>
 </html>`;
 
-export function renderSwaggerUi(res: ServerResponse): void {
-  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-  res.end(swaggerUiHtml);
+export function renderSwaggerUi(reply: FastifyReply): void {
+  reply.type('text/html; charset=utf-8').send(swaggerUiHtml);
 }
 
-export function getOpenApiDocument(res: ServerResponse): void {
-  sendJson(res, 200, openApiDocument);
+export function getOpenApiDocument(reply: FastifyReply): void {
+  reply.send(openApiDocument);
 }
 
 export async function serveSwaggerUiAsset(
-  res: ServerResponse,
+  reply: FastifyReply,
   assetName: string,
-): Promise<boolean> {
+): Promise<void> {
   const contentType = swaggerUiAssets.get(assetName);
 
   if (!contentType) {
-    return false;
+    reply.code(404).send({ message: 'Not Found' });
+    return;
   }
 
   const asset = await readFile(join(swaggerUiDirectory, assetName));
-  res.writeHead(200, { 'Content-Type': contentType });
-  res.end(asset);
-  return true;
+  reply.type(contentType).send(asset);
 }

@@ -1,24 +1,11 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { FastifyInstance } from 'fastify';
 import { callback, login } from '../controllers/auth.controller.ts';
 
-export async function handleAuthRoute(
-  req: IncomingMessage,
-  res: ServerResponse,
-  url: URL,
-): Promise<boolean> {
-  if (req.method !== 'GET') {
-    return false;
-  }
+export function registerAuthRoutes(app: FastifyInstance): void {
+  app.get('/auth/login', (_request, reply) => login(reply));
 
-  if (url.pathname === '/auth/login') {
-    login(res);
-    return true;
-  }
-
-  if (url.pathname === '/auth/callback') {
-    await callback(res, url);
-    return true;
-  }
-
-  return false;
+  app.get<{ Querystring: { code?: string } }>(
+    '/auth/callback',
+    async (request, reply) => callback(reply, request.query.code),
+  );
 }

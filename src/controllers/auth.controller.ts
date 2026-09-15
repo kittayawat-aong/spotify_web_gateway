@@ -1,31 +1,29 @@
-import type { ServerResponse } from 'node:http';
-import { sendJson } from '../lib/http-response.ts';
+import type { FastifyReply } from 'fastify';
 import {
   createAuthorizationUrl,
   exchangeAuthorizationCode,
 } from '../services/spotify-auth.service.ts';
 import { saveSpotifyToken } from '../services/spotify-token.service.ts';
 
-export function login(res: ServerResponse): void {
-  res.writeHead(302, { Location: createAuthorizationUrl() });
-  res.end();
+export function login(reply: FastifyReply): void {
+  reply.redirect(createAuthorizationUrl());
 }
 
-export async function callback(res: ServerResponse, url: URL): Promise<void> {
-  const code = url.searchParams.get('code');
-
+export async function callback(
+  reply: FastifyReply,
+  code: string | undefined,
+): Promise<void> {
   if (!code) {
-    sendJson(res, 400, { message: 'Missing authorization code' });
+    reply.code(400).send({ message: 'Missing authorization code' });
     return;
   }
 
   const tokenResponse = await exchangeAuthorizationCode(code);
   if (tokenResponse.status === 200) {
     await saveSpotifyToken(tokenResponse.body);
-    res.writeHead(302, { Location: '/' });
-    res.end();
+    reply.redirect('/');
     return;
   }
 
-  sendJson(res, tokenResponse.status, tokenResponse.body);
+  reply.code(tokenResponse.status).send(tokenResponse.body);
 }

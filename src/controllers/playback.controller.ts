@@ -1,5 +1,4 @@
-import type { ServerResponse } from 'node:http';
-import { sendJson } from '../lib/http-response.ts';
+import type { FastifyReply } from 'fastify';
 import {
   getDevices,
   getPlayback,
@@ -10,39 +9,39 @@ import {
 } from '../services/spotify-playback.service.ts';
 import { SpotifyTokenUnavailableError } from '../services/spotify-token.service.ts';
 
-export async function playback(res: ServerResponse): Promise<void> {
-  await sendPlaybackResponse(res, getPlayback);
+export async function playback(reply: FastifyReply): Promise<void> {
+  await sendPlaybackResponse(reply, getPlayback);
 }
 
-export async function devices(res: ServerResponse): Promise<void> {
-  await sendPlaybackResponse(res, getDevices);
+export async function devices(reply: FastifyReply): Promise<void> {
+  await sendPlaybackResponse(reply, getDevices);
 }
 
 export async function startPlayback(
-  res: ServerResponse,
+  reply: FastifyReply,
   deviceId?: string,
 ): Promise<void> {
-  await sendPlaybackResponse(res, () => play(deviceId));
+  await sendPlaybackResponse(reply, () => play(deviceId));
 }
 
-export async function pausePlayback(res: ServerResponse): Promise<void> {
-  await sendPlaybackResponse(res, pause);
+export async function pausePlayback(reply: FastifyReply): Promise<void> {
+  await sendPlaybackResponse(reply, pause);
 }
 
-export async function nextTrack(res: ServerResponse): Promise<void> {
-  await sendPlaybackResponse(res, next);
+export async function nextTrack(reply: FastifyReply): Promise<void> {
+  await sendPlaybackResponse(reply, next);
 }
 
 async function sendPlaybackResponse(
-  res: ServerResponse,
+  reply: FastifyReply,
   action: () => Promise<SpotifyApiResponse>,
 ): Promise<void> {
   try {
     const response = await action();
-    sendJson(res, response.status, response.body);
+    reply.code(response.status).send(response.body);
   } catch (error) {
     if (error instanceof SpotifyTokenUnavailableError) {
-      sendJson(res, 401, { message: error.message });
+      reply.code(401).send({ message: error.message });
       return;
     }
 

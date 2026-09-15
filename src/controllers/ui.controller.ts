@@ -1,4 +1,4 @@
-import type { ServerResponse } from 'node:http';
+import type { FastifyReply } from 'fastify';
 
 const page = `<!doctype html>
 <html lang="th">
@@ -125,7 +125,6 @@ const page = `<!doctype html>
   </body>
 </html>`;
 
-export function renderUi(res: ServerResponse): void {
-  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-  res.end(page);
+export function renderUi(reply: FastifyReply): void {
+  reply.type('text/html; charset=utf-8').send(page);
 }

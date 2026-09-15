@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { FastifyInstance } from 'fastify';
 import {
   devices,
   nextTrack,
@@ -8,40 +8,14 @@ import {
 } from '../controllers/playback.controller.ts';
 import { authStatus } from '../controllers/auth-status.controller.ts';
 
-export async function handlePlaybackRoute(
-  req: IncomingMessage,
-  res: ServerResponse,
-  url: URL,
-): Promise<boolean> {
-  if (req.method === 'GET' && url.pathname === '/api/auth/status') {
-    await authStatus(res);
-    return true;
-  }
-
-  if (req.method === 'GET' && url.pathname === '/api/playback') {
-    await playback(res);
-    return true;
-  }
-
-  if (req.method === 'GET' && url.pathname === '/api/devices') {
-    await devices(res);
-    return true;
-  }
-
-  if (req.method === 'POST' && url.pathname === '/api/play') {
-    await startPlayback(res, url.searchParams.get('device_id') ?? undefined);
-    return true;
-  }
-
-  if (req.method === 'POST' && url.pathname === '/api/pause') {
-    await pausePlayback(res);
-    return true;
-  }
-
-  if (req.method === 'POST' && url.pathname === '/api/next') {
-    await nextTrack(res);
-    return true;
-  }
-
-  return false;
+export function registerPlaybackRoutes(app: FastifyInstance): void {
+  app.get('/api/auth/status', async (_request, reply) => authStatus(reply));
+  app.get('/api/playback', async (_request, reply) => playback(reply));
+  app.get('/api/devices', async (_request, reply) => devices(reply));
+  app.post<{ Querystring: { device_id?: string } }>(
+    '/api/play',
+    async (request, reply) => startPlayback(reply, request.query.device_id),
+  );
+  app.post('/api/pause', async (_request, reply) => pausePlayback(reply));
+  app.post('/api/next', async (_request, reply) => nextTrack(reply));
 }

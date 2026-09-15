@@ -1,15 +1,6 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { FastifyInstance } from 'fastify';
 import { recentLogs } from '../controllers/logs.controller.ts';
 
-export async function handleLogsRoute(
-  req: IncomingMessage,
-  res: ServerResponse,
-  url: URL,
-): Promise<boolean> {
-  if (req.method !== 'GET' || url.pathname !== '/api/logs') {
-    return false;
-  }
-
-  await recentLogs(res);
-  return true;
+export function registerLogsRoutes(app: FastifyInstance): void {
+  app.get('/api/logs', async (_request, reply) => recentLogs(reply));
 }
